@@ -1,40 +1,87 @@
 <?php
-/*
- * Constantes de parâmetros para configuração da conexão
- */
-define('HOST', 'localhost');
-define('DBNAME', 'labx');
-define('CHARSET', 'utf8');
-define('USER', 'root');
-define('PASSWORD', '');
 
-class Conexao {
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASSWORD', '');
+define('DB_NAME', 'labx');
 
-    /*
-     * Atributo estático para instância do PDO
+class Db
+{
+    // The database connection
+    protected static $connection;
+
+    /**
+     * Connect to the database
+     *
+     * @return bool false on failure / mysqli MySQLi object instance on success
      */
-    private static $pdo;
+    public function connect()
+    {
+        // Try and connect to the database
+        if (!isset(self::$connection)) {
+            // Load configuration as an array. Use the actual location of your configuration file
+            self::$connection = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+        }
 
-    /*
-     * Escondendo o construtor da classe
-     */
-    private function __construct() {
-        //
+        // If connection was not successful, handle the error
+        if (self::$connection === false) {
+            // Handle error - notify administrator, log to a file, show an error screen, etc.
+            return false;
+        }
+        return self::$connection;
     }
 
-    /*
-     * Método estático para retornar uma conexão válida
-     * Verifica se já existe uma instância da conexão, caso não, configura uma nova conexão
+    /**
+     * Query the database
+     *
+     * @param $query The query string
+     * @return mixed The result of the mysqli::query() function
      */
-    public static function getInstance() {
-        if (!isset(self::$pdo)) {
-            try {
-                $opcoes = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES UTF8', PDO::ATTR_PERSISTENT => TRUE);
-                self::$pdo = new PDO("mysql:host=" . HOST . "; dbname=" . DBNAME . "; charset=" . CHARSET . ";", USER, PASSWORD, $opcoes);
-            } catch (PDOException $e) {
-                print "Erro: " . $e->getMessage();
-            }
+    public function query($query)
+    {
+        // Connect to the database
+        $connection = $this->connect();
+
+        // Query the database
+        $result = $connection->query($query);
+
+        return $result;
+    }
+
+    /**
+     * Fetch rows from the database (SELECT query)
+     *
+     * @param $query The query string
+     * @return bool False on failure / array Database rows on success
+     */
+    public function select($query)
+    {
+        $rows = array();
+        $result = $this->query($query);
+        if ($result === false) {
+            return false;
         }
-        return self::$pdo;
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = $row;
+        }
+        return $rows;
+    }
+
+    /**
+     * Fetch the last error from the database
+     *
+     * @return string Database error message
+     */
+
+    /**
+     * Quote and escape value for use in a database query
+     *
+     * @param string $value The value to be quoted and escaped
+     * @return string The quoted and escaped string
+     */
+    public function quote($value)
+    {
+        $connection = $this->connect();
+        return "'" . $connection->real_escape_string($value) . "'";
     }
 }

@@ -6,9 +6,9 @@
 
     <link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.css">
     <script src="../lib/angular/angular.js"></script>
-    <script src="../js/app.js"></script>
+    <script src="../controller/js/produto.js"></script>
 </head>
-<body ng-controller="produto">
+<body ng-controller="produtos">
 <div ng-include="'cabecalho.html'"></div>
 <div class="container-fluid">
     <div class="row">
@@ -52,7 +52,7 @@
                     <td class="col-md-2">
                         <a href="" class="btn btn-xs btn-success">Visualizar</a>
                         <a href="" class="btn btn-xs btn-warning">Editar</a>
-                        <a href="" class="btn btn-xs btn-danger">Excluir</a>
+                        <a href="" class="btn btn-xs btn-danger" ng-click="apagaProduto(produto)">Excluir</a>
                     </td>
                 </tr>
                 </tbody>
